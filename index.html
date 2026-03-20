@@ -216,8 +216,6 @@
                     <option value="events"># events</option>
                     <option value="jb-shop"># jb-shop</option>
                     <option value="other-shops"># other-shops</option>
-                    <option value="juicy-deals"># juicy-deals</option>
-                    <option value="roblox-group"># roblox-group</option>
                 </select>
             </div>
 
@@ -277,15 +275,13 @@ Supports:
     </div>
 
     <script>
-        // Webhooks configuration
+        // Webhooks loaded from GitHub Actions
         const WEBHOOKS = {
-            "rules": "YOUR_RULES_WEBHOOK_URL",
-            "announcements": "YOUR_ANNOUNCEMENTS_WEBHOOK_URL",
-            "events": "YOUR_EVENTS_WEBHOOK_URL",
-            "jb-shop": "YOUR_JB_SHOP_WEBHOOK_URL",
-            "other-shops": "YOUR_OTHER_SHOPS_WEBHOOK_URL",
-            "juicy-deals": "YOUR_JUICY_DEALS_WEBHOOK_URL",
-            "roblox-group": "YOUR_ROBLOX_GROUP_WEBHOOK_URL",
+            "rules": "",
+            "announcements": "",
+            "events": "",
+            "jb-shop": "",
+            "other-shops": "",
         };
 
         let selectedColor = "#4190d4";
@@ -361,8 +357,8 @@ Supports:
             }
 
             const webhookUrl = WEBHOOKS[channel];
-            if (!webhookUrl || webhookUrl.includes('YOUR_')) {
-                statusEl.textContent = '❌ Webhook not configured for this channel!';
+            if (!webhookUrl) {
+                statusEl.textContent = '❌ Webhook not configured!';
                 statusEl.className = 'status-message status-error';
                 return;
             }
