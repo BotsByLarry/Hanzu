@@ -1,0 +1,23 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Create config file with secrets
+        run: |
+          cat > config.js << 'EOF'
+          const WEBHOOKS = {
+              "rules": "${{ secrets.RULES_WEBHOOK }}",
+              "announcements": "${{ secrets.ANNOUNCEMENTS_WEBHOOK }}",
+              "events": "${{ secrets.EVENTS_WEBHOOK }}",
+              "jb-shop": "${{ secrets.JB_SHOP_WEBHOOK }}",
+              "other-shops": "${{ secrets.OTHER_SHOPS_WEBHOOK }}"
+          };
+          EOF
