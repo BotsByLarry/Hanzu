@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post to Discord</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .form-section, .preview-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #5b9fd4;
+        }
+
+        select {
+            cursor: pointer;
+            background: white;
+        }
+
+        textarea {
+            height: 200px;
+            resize: vertical;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4190d4 0%, #5b9fd4 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(65, 140, 200, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .discord-embed {
+            background: #2c2f33;
+            border-left: 4px solid #5b9fd4;
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .embed-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .embed-description {
+            font-size: 14px;
+            color: #dcddde;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .preview-label {
+            color: #666;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-text {
+            background: #f0f7ff;
+            border-left: 4px solid #5b9fd4;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>📤 Post to Discord</h1>
+            <p class="subtitle">Create a clean embed message</p>
+
+            <div class="info-text">
+                💡 Your message will be formatted as a beautiful Discord embed with the selected color.
+            </div>
+
+            <div class="form-group">
+                <label>Select Channel</label>
+                <select id="channelSelect">
+                    <option value="">-- Choose a channel --</option>
+                    <option value="rules"># rules</option>
+                    <option value="announcements"># announcements</option>
+                    <option value="events"># events</option>
+                    <option value="jb-shop"># jb-shop</option>
+                    <option value="other-shops"># other-shops</option>
+                    <option value="juicy-deals"># juicy-deals</option>
+                    <option value="roblox-group"># roblox-group</option>
+                </select>
+            </div>
+
+            <div class="info-text" style="background: #fff3cd; border-left-color: #ffc107;">
+                <strong>📝 Discord Formatting Reference:</strong><br>
+                <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">**text**</code> for <strong>bold</strong> &nbsp; | &nbsp;
+                <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">*text*</code> for <em>italic</em> &nbsp; | &nbsp;
+                <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">__text__</code> for <u>underline</u> &nbsp; | &nbsp;
+                <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">~~text~~</code> for <s>strikethrough</s> &nbsp; | &nbsp;
+                <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 12px;">`code`</code> for code
+            </div>
+
+            <div class="form-group">
+                <label>Title (Optional)</label>
+                <input type="text" id="titleInput" placeholder="e.g., Important Announcement" maxlength="256">
+            </div>
+
+            <div class="form-group">
+                <label>Message Content</label>
+                <textarea id="messageInput" placeholder="Paste your formatted text here...
+Supports:
+• Multiple lines
+• Emojis 🎉
+• **Bold** text
+• Any formatting"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Embed Color</label>
+                <div class="color-picker">
+                    <div class="color-option selected" style="background: #4190d4;" onclick="selectColor('#4190d4', this)" title="Blue"></div>
+                    <div class="color-option" style="background: #dc2626;" onclick="selectColor('#dc2626', this)" title="Red"></div>
+                    <div class="color-option" style="background: #16a34a;" onclick="selectColor('#16a34a', this)" title="Green"></div>
+                    <div class="color-option" style="background: #ea580c;" onclick="selectColor('#ea580c', this)" title="Orange"></div>
+                    <div class="color-option" style="background: #a855f7;" onclick="selectColor('#a855f7', this)" title="Purple"></div>
+                    <div class="color-option" style="background: #ec4899;" onclick="selectColor('#ec4899', this)" title="Pink"></div>
+                    <div class="color-option" style="background: #1e293b;" onclick="selectColor('#1e293b', this)" title="Dark"></div>
+                </div>
+            </div>
+
+            <button onclick="sendToDiscord()">📤 Send to Discord</button>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <div class="preview-section">
+            <h1>👁️ Preview</h1>
+            <p class="subtitle">See how it looks in Discord</p>
+
+            <p class="preview-label">Discord Embed Preview:</p>
+            <div id="preview">
+                <div class="discord-embed" id="embedPreview">
+                    <div class="embed-title">Your embed preview will appear here...</div>
+                    <div class="embed-description">Type in the form to see a live preview</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Webhooks configuration
+        const WEBHOOKS = {
+            "rules": "YOUR_RULES_WEBHOOK_URL",
+            "announcements": "YOUR_ANNOUNCEMENTS_WEBHOOK_URL",
+            "events": "YOUR_EVENTS_WEBHOOK_URL",
+            "jb-shop": "YOUR_JB_SHOP_WEBHOOK_URL",
+            "other-shops": "YOUR_OTHER_SHOPS_WEBHOOK_URL",
+            "juicy-deals": "YOUR_JUICY_DEALS_WEBHOOK_URL",
+            "roblox-group": "YOUR_ROBLOX_GROUP_WEBHOOK_URL",
+        };
+
+        let selectedColor = "#4190d4";
+
+        document.getElementById('titleInput').addEventListener('input', updatePreview);
+        document.getElementById('messageInput').addEventListener('input', updatePreview);
+
+        function selectColor(color, element) {
+            document.querySelectorAll('.color-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedColor = color;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const title = document.getElementById('titleInput').value;
+            const message = document.getElementById('messageInput').value;
+            const embedPreview = document.getElementById('embedPreview');
+            
+            if (!title && !message) {
+                embedPreview.innerHTML = `
+                    <div class="embed-title">Your embed preview will appear here...</div>
+                    <div class="embed-description">Type in the form to see a live preview</div>
+                `;
+                return;
+            }
+
+            let html = '';
+            if (title) {
+                html += `<div class="embed-title">${escapeHtml(title)}</div>`;
+            }
+            if (message) {
+                html += `<div class="embed-description">${escapeHtml(message)}</div>`;
+            }
+
+            embedPreview.innerHTML = html;
+            embedPreview.style.borderLeftColor = selectedColor;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function sendToDiscord() {
+            const channel = document.getElementById('channelSelect').value;
+            const title = document.getElementById('titleInput').value;
+            const message = document.getElementById('messageInput').value;
+            const statusEl = document.getElementById('statusMessage');
+
+            if (!channel) {
+                statusEl.textContent = '❌ Please select a channel!';
+                statusEl.className = 'status-message status-error';
+                return;
+            }
+
+            if (!message.trim()) {
+                statusEl.textContent = '❌ Please enter a message!';
+                statusEl.className = 'status-message status-error';
+                return;
+            }
+
+            const webhookUrl = WEBHOOKS[channel];
+            if (!webhookUrl || webhookUrl.includes('YOUR_')) {
+                statusEl.textContent = '❌ Webhook not configured for this channel!';
+                statusEl.className = 'status-message status-error';
+                return;
+            }
+
+            const rgb = hexToRgb(selectedColor);
+            const color = (rgb.r << 16) + (rgb.g << 8) + rgb.b;
+
+            const embed = {
+                title: title || undefined,
+                description: message,
+                color: color
+            };
+
+            Object.keys(embed).forEach(key => embed[key] === undefined && delete embed[key]);
+
+            const payload = {
+                embeds: [embed]
+            };
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusEl.textContent = `✅ Posted to #${channel}!`;
+                    statusEl.className = 'status-message status-success';
+                    document.getElementById('titleInput').value = '';
+                    document.getElementById('messageInput').value = '';
+                    document.getElementById('channelSelect').value = '';
+                    updatePreview();
+                    setTimeout(() => {
+                        statusEl.style.display = 'none';
+                    }, 3000);
+                } else {
+                    statusEl.textContent = '❌ Error posting to Discord.';
+                    statusEl.className = 'status-message status-error';
+                }
+            })
+            .catch(error => {
+                statusEl.textContent = '❌ Error: ' + error.message;
+                statusEl.className = 'status-message status-error';
+            });
+        }
+
+        updatePreview();
+    </script>
+</body>
+</html>
